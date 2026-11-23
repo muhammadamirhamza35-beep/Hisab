@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="description" content="Hisab - offline daily expense tracker">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Hisab</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--text:#14201d;--muted:#64716d;--line:#e3e8e6;--brand:#0f766e;--brand2:#e6f4f1;--red:#dc2626;--green:#15803d;--amber:#b45309;--blue:#2563eb;--input:#fff}
+[data-theme=dark]{--bg:#0d1312;--card:#161e1c;--text:#e7eeec;--muted:#93a29e;--line:#26312e;--brand:#2dd4bf;--brand2:#12302b;--red:#f87171;--green:#4ade80;--amber:#fbbf24;--blue:#60a5fa;--input:#0f1715}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text)}
+body{font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Bengali","Noto Sans",sans-serif;padding-bottom:calc(64px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+header h1{font-size:19px;flex:1;color:var(--brand)}
+.tbtn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:6px 12px;font:inherit;font-size:13px}
+main{max-width:560px;margin:0 auto;padding:12px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h2{font-size:15px;margin-bottom:10px}
+.big{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.neg{color:var(--red)}.pos{color:var(--green)}
+.muted{color:var(--muted);font-size:13px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.stat{background:var(--brand2);border-radius:10px;padding:8px 10px}
+.stat small{display:block;color:var(--muted);font-size:12px}.stat b{font-size:15px}
+label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
+input,select{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--input);color:var(--text)}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.btn{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:var(--brand);color:#fff;font:inherit;font-weight:600;font-size:15px}
+[data-theme=dark] .btn{color:#062a25}
+.err{color:var(--red);font-size:13px;margin-top:6px;min-height:0}
+ul{list-style:none}
+li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+.li-main{flex:1;min-width:0}.li-main b{font-weight:600;font-size:14px;display:block}
+.li-main small{color:var(--muted);font-size:12px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.amt{font-weight:600;white-space:nowrap}
+.del{border:0;background:none;color:var(--muted);font-size:22px;line-height:1;padding:4px 6px}
+.day{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600;padding:10px 0 2px;text-transform:uppercase}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.done .li-main b{text-decoration:line-through;color:var(--muted)}
+.chk{width:22px;height:22px;flex:none;accent-color:var(--brand)}
+.pie{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pie svg{width:150px;height:150px;flex:none;transform:rotate(-90deg)}
+.legend{flex:1;min-width:160px}.legend li{padding:5px 0;font-size:13px;border:0}
+.ins{border-left:4px solid var(--blue);padding:10px 12px;border-radius:10px;background:var(--card);border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:10px;font-size:14px}
+.ins.warn{border-left-color:var(--red)}.ins.good{border-left-color:var(--green)}.ins.info{border-left-color:var(--blue)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:var(--brand)}
+li.loan{display:block}.lhead{display:flex;align-items:center;gap:8px}.lhead b{flex:1;min-width:0;font-weight:600;font-size:14px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--brand2);color:var(--brand)}.tag.od{background:transparent;border:1px solid var(--red);color:var(--red)}
+.payF{display:flex;gap:8px;margin-top:8px}.payF input{padding:8px 10px;font-size:15px}.pbtn{flex:none;border:0;border-radius:10px;background:var(--brand);color:#fff;font:inherit;font-weight:600;font-size:13px;padding:0 14px}[data-theme=dark] .pbtn{color:#062a25}
+.phist{margin-top:6px}.phist div{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}.phist .del{font-size:18px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-size:12px;padding:10px 2px 12px;font-weight:600}
+nav button.on{color:var(--brand);box-shadow:inset 0 3px 0 var(--brand)}
+</style>
+</head>
+<body>
+<header>
+  <h1 data-i="appName">Hisab</h1>
+  <button class="tbtn" id="langBtn">বাংলা</button>
+  <button class="tbtn" id="themeBtn">Night</button>
+</header>
+
+<main>
+<!-- HOME -->
+<section id="home" class="on">
+  <div class="card">
+    <div class="muted" data-i="moneyLeft"></div>
+    <div class="big" id="left">৳0</div>
+    <div class="grid4">
+      <div class="stat"><small data-i="incomeT"></small><b id="sInc"></b></div>
+      <div class="stat"><small data-i="fixedT"></small><b id="sFix"></b></div>
+      <div class="stat"><small data-i="spentT"></small><b id="sExp"></b></div>
+      <div class="stat"><small data-i="savedT"></small><b id="sSav"></b></div>
+    </div>
+    <p class="muted" style="margin-top:10px"><span data-i="todaySpent"></span>: <b id="sToday"></b></p>
+    <p class="muted" id="hLoan" style="margin-top:4px"></p>
+  </div>
+
+  <div class="card">
+    <h2><span data-i="thisMonth"></span> · <span id="mName"></span></h2>
+    <div class="grid4" style="margin-top:0">
+      <div class="stat"><small data-i="incomeT"></small><b id="mInc"></b></div>
+      <div class="stat"><small data-i="fixedT"></small><b id="mFix"></b></div>
+      <div class="stat"><small data-i="spentT"></small><b id="mExp"></b></div>
+      <div class="stat"><small data-i="savedT"></small><b id="mSav"></b></div>
+    </div>
+    <p class="muted" style="margin-top:10px"><span data-i="leftMonth"></span>: <b id="mLeft"></b></p>
+    <h2 style="margin-top:14px" data-i="history"></h2>
+    <ul id="monList"></ul>
+  </div>
+
+  <form class="card" id="fExp" autocomplete="off">
+    <h2 data-i="addExpense"></h2>
+    <div class="row">
+      <div><label data-i="amount"></label><input id="eAmt" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>
+      <div><label data-i="category"></label><select id="eCat"></select></div>
+    </div>
+    <div class="row">
+      <div><label data-i="note"></label><input id="eNote" maxlength="80"></div>
+      <div><label data-i="date"></label><input id="eDate" type="date"></div>
+    </div>
+    <div class="err" id="eErr"></div>
+    <button class="btn" data-i="add"></button>
+  </form>
+
+  <div class="card">
+    <h2 data-i="recent"></h2>
+    <ul id="expList"></ul>
+  </div>
+
+  <div class="card">
+    <h2 data-i="pieTitle"></h2>
+    <div id="pie"></div>
+  </div>
+</section>
+
+<!-- INCOME + FIXED -->
+<section id="income">
+  <div class="card">
+    <div class="grid4" style="margin-top:0">
+      <div class="stat"><small data-i="totalIncome"></small><b id="tInc"></b></div>
+      <div class="stat"><small data-i="totalFixed"></small><b id="tFix"></b></div>
+    </div>
+    <p class="muted" style="margin-top:10px"><span data-i="moneyLeft"></span>: <b id="tLeft"></b></p>
+  </div>
+  <form class="card" id="fInc" autocomplete="off">
+    <h2 data-i="addIncome"></h2>
+    <div class="row">
+      <div><label data-i="amount"></label><input id="iAmt" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>
+      <div><label data-i="date"></label><input id="iDate" type="date"></div>
+    </div>
+    <label data-i="source"></label><input id="iNote" maxlength="80">
+    <div class="err" id="iErr"></div>
+    <button class="btn" data-i="add"></button>
+  </form>
+  <form class="card" id="fFix" autocomplete="off">
+    <h2 data-i="addFixed"></h2>
+    <div class="row">
+      <div><label data-i="amount"></label><input id="xAmt" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>
+      <div><label data-i="type"></label><select id="xType"></select></div>
+    </div>
+    <div class="row">
+      <div><label data-i="note"></label><input id="xNote" maxlength="80"></div>
+      <div><label data-i="date"></label><input id="xDate" type="date"></div>
+    </div>
+    <div class="err" id="xErr"></div>
+    <button class="btn" data-i="add"></button>
+  </form>
+  <div class="card"><h2 data-i="incomeList"></h2><ul id="incList"></ul></div>
+  <div class="card"><h2 data-i="fixedList"></h2><ul id="fixList"></ul></div>
+</section>
+
+<!-- SAVINGS -->
+<section id="savings">
+  <div class="card">
+    <div class="muted" data-i="totalSaved"></div>
+    <div class="big pos" id="savTotal"></div>
+    <p class="muted" style="margin-top:6px" data-i="savNote"></p>
+  </div>
+  <form class="card" id="fSav" autocomplete="off">
+    <h2 data-i="addSaving"></h2>
+    <div class="row">
+      <div><label data-i="amount"></label><input id="sAmt" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>
+      <div><label data-i="date"></label><input id="sDate" type="date"></div>
+    </div>
+    <label data-i="note"></label><input id="sNote" maxlength="80">
+    <div class="err" id="sErr"></div>
+    <button class="btn" data-i="add"></button>
+  </form>
+  <div class="card"><h2 data-i="savingList"></h2><ul id="savList"></ul></div>
+</section>
+
+<!-- NEEDS -->
+<section id="needs">
+  <div class="card">
+    <div class="grid4" style="margin-top:0">
+      <div class="stat"><small data-i="needTotal"></small><b id="nTotal"></b></div>
+      <div class="stat"><small data-i="moneyLeft"></small><b id="nLeft"></b></div>
+    </div>
+    <div class="bar"><i id="nBar" style="width:0"></i></div>
+    <p id="nMsg" style="margin-top:10px;font-size:14px"></p>
+  </div>
+  <form class="card" id="fNeed" autocomplete="off">
+    <h2 data-i="addNeed"></h2>
+    <div class="row">
+      <div style="flex:1.6"><label data-i="item"></label><input id="nName" maxlength="60"></div>
+      <div><label data-i="estPrice"></label><input id="nPrice" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>
+    </div>
+    <div class="err" id="nErr"></div>
+    <button class="btn" data-i="add"></button>
+  </form>
+  <div class="card"><h2 data-i="needList"></h2><ul id="needList"></ul></div>
+</section>
+
+<!-- LOAN -->
+<section id="loan">
+  <div class="card">
+    <div class="grid4" style="margin-top:0">
+      <div class="stat"><small data-i="iOwe"></small><b id="lOwe" class="neg"></b></div>
+      <div class="stat"><small data-i="owedMe"></small><b id="lOwed" class="pos"></b></div>
+    </div>
+    <p class="muted" style="margin-top:10px" data-i="loanNote"></p>
+  </div>
+  <form class="card" id="fLoan" autocomplete="off">
+    <h2 data-i="addLoan"></h2>
+    <label data-i="loanType"></label><select id="lType"></select>
+    <div class="row">
+      <div style="flex:1.4"><label data-i="person"></label><input id="lName" maxlength="40"></div>
+      <div><label data-i="amount"></label><input id="lAmt" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>
+    </div>
+    <div class="row">
+      <div><label data-i="date"></label><input id="lDate" type="date"></div>
+      <div><label data-i="dueDate"></label><input id="lDue" type="date"></div>
+    </div>
+    <label data-i="note"></label><input id="lNote" maxlength="80">
+    <div class="err" id="lErr"></div>
+    <button class="btn" data-i="add"></button>
+  </form>
+  <div class="card"><h2 data-i="takenList"></h2><ul id="takeList"></ul></div>
+  <div class="card"><h2 data-i="givenList"></h2><ul id="giveList"></ul></div>
+  <div class="card"><h2 data-i="closedList"></h2><ul id="closedList"></ul></div>
+</section>
+
+<!-- AI -->
+<section id="ai">
+  <div class="card">
+    <h2 data-i="aiTitle"></h2>
+    <p class="muted" data-i="aiSub"></p>
+  </div>
+  <div id="insights"></div>
+</section>
+</main>
+
+<nav id="nav">
+  <button data-t="home" class="on" data-i="home"></button>
+  <button data-t="income" data-i="income"></button>
+  <button data-t="savings" data-i="savings"></button>
+  <button data-t="needs" data-i="needs"></button>
+  <button data-t="loan" data-i="loan"></button>
+  <button data-t="ai" data-i="ai"></button>
+</nav>
+
+<script>
+(function(){
+"use strict";
+var KEY="hisab_v1";
+var $=function(id){return document.getElementById(id)};
+
+/* ---------- Text (English / Bangla) ---------- */
+var T={
+en:{appName:"Hisab",home:"Home",income:"Income",savings:"Savings",needs:"Needs",ai:"AI",
+moneyLeft:"Money left",incomeT:"Income",fixedT:"Fixed costs",spentT:"Spent",savedT:"Saved",todaySpent:"Spent today",
+addExpense:"Add expense",amount:"Amount (৳)",category:"Category",note:"Note (optional)",date:"Date",add:"Add",
+recent:"Recent expenses",noData:"Nothing added yet.",pieTitle:"Where your money goes (this month)",noPie:"No expenses this month yet.",
+addIncome:"Add income",source:"Source / note (optional)",incomeList:"Income history",addFixed:"Add fixed cost",type:"Type",
+fixedList:"Fixed cost history",totalIncome:"Total income",totalFixed:"Total fixed costs",totalSaved:"Total saved",
+addSaving:"Add to savings",savingList:"Savings history",savNote:"Money you put into savings is taken out of \"Money left\", so you don't spend it by mistake.",
+needTotal:"Still need to buy",addNeed:"Add an item",item:"Item",estPrice:"Est. price (৳)",needList:"My list",
+afford:"You have enough money left to buy everything on your list.",short:"You are short by {x}.",nothingNeeded:"Your list is empty.",
+aiTitle:"Money insights",aiSub:"Worked out on your phone from your own data. Nothing leaves your phone.",
+delQ:"Delete this entry?",badAmt:"Enter an amount greater than 0.",badItem:"Enter the item name.",
+thisMonth:"This month",leftMonth:"Left from this month's income",history:"Monthly history",hSpent:"Spent",hSaved:"Saved",hInc:"Income",noHist:"Past months will show here.",night:"Night",day:"Day",langBtn:"বাংলা",latest:"Showing latest {n}",today:"Today",yesterday:"Yesterday",
+loan:"Loan",iOwe:"I have to pay back",owedMe:"Others owe me",loanNote:"Money you borrow is added to \"Money left\" and taken out when you pay it back. Money you lend is taken out and added back when you get it back.",
+addLoan:"Add a loan",loanType:"Type",person:"Person's name",dueDate:"Pay-back date (optional)",takenList:"Loans I took",givenList:"Loans I gave",closedList:"Settled loans",
+badName:"Enter the person's name.",payBack:"Pay back",gotBack:"Got back",paidOf:"Paid back {p} of {a}",gotOf:"Got back {p} of {a}",due:"Due {d}",overdue:"Overdue · was due {d}",settled:"Settled",
+homeLoan:"Loan: I owe {o} · Others owe me {r}",tooMuch:"Only {x} is left on this loan.",left:"left"},
+bn:{appName:"হিসাব",home:"হোম",income:"আয়",savings:"সঞ্চয়",needs:"প্রয়োজন",ai:"এআই",
+moneyLeft:"বাকি টাকা",incomeT:"আয়",fixedT:"স্থায়ী খরচ",spentT:"খরচ",savedT:"সঞ্চয়",todaySpent:"আজকের খরচ",
+addExpense:"খরচ যোগ করুন",amount:"পরিমাণ (৳)",category:"ক্যাটাগরি",note:"নোট (ঐচ্ছিক)",date:"তারিখ",add:"যোগ করুন",
+recent:"সাম্প্রতিক খরচ",noData:"এখনো কিছু যোগ করা হয়নি।",pieTitle:"টাকা কোথায় যাচ্ছে (এই মাস)",noPie:"এই মাসে এখনো কোনো খরচ নেই।",
+addIncome:"আয় যোগ করুন",source:"উৎস / নোট (ঐচ্ছিক)",incomeList:"আয়ের তালিকা",addFixed:"স্থায়ী খরচ যোগ করুন",type:"ধরন",
+fixedList:"স্থায়ী খরচের তালিকা",totalIncome:"মোট আয়",totalFixed:"মোট স্থায়ী খরচ",totalSaved:"মোট সঞ্চয়",
+addSaving:"সঞ্চয়ে যোগ করুন",savingList:"সঞ্চয়ের তালিকা",savNote:"সঞ্চয়ে রাখা টাকা \"বাকি টাকা\" থেকে বাদ যায়, যাতে ভুল করে খরচ না হয়ে যায়।",
+needTotal:"এখনো কিনতে হবে",addNeed:"জিনিস যোগ করুন",item:"জিনিস",estPrice:"আনুমানিক দাম (৳)",needList:"আমার তালিকা",
+afford:"তালিকার সবকিছু কেনার মতো টাকা আপনার আছে।",short:"আরও {x} লাগবে।",nothingNeeded:"তালিকা খালি।",
+aiTitle:"টাকার বিশ্লেষণ",aiSub:"আপনার ফোনেই আপনার তথ্য থেকে হিসাব করা হয়। কোনো তথ্য ফোনের বাইরে যায় না।",
+delQ:"এটি মুছে ফেলবেন?",badAmt:"০-এর বেশি পরিমাণ লিখুন।",badItem:"জিনিসের নাম লিখুন।",
+thisMonth:"এই মাস",leftMonth:"এই মাসের আয় থেকে বাকি",history:"মাসিক হিসাব",hSpent:"খরচ",hSaved:"সঞ্চয়",hInc:"আয়",noHist:"আগের মাসগুলোর হিসাব এখানে দেখাবে।",night:"রাত",day:"দিন",langBtn:"English",latest:"সর্বশেষ {n}টি দেখানো হচ্ছে",today:"আজ",yesterday:"গতকাল",
+loan:"ধার",iOwe:"আমাকে ফেরত দিতে হবে",owedMe:"আমি পাবো",loanNote:"ধার নেওয়া টাকা \"বাকি টাকা\"-য় যোগ হয়, ফেরত দিলে বাদ যায়। ধার দেওয়া টাকা বাদ যায়, ফেরত পেলে আবার যোগ হয়।",
+addLoan:"ধার যোগ করুন",loanType:"ধরন",person:"ব্যক্তির নাম",dueDate:"ফেরতের তারিখ (ঐচ্ছিক)",takenList:"আমি যে ধার নিয়েছি",givenList:"আমি যে ধার দিয়েছি",closedList:"শোধ হয়ে যাওয়া ধার",
+badName:"ব্যক্তির নাম লিখুন।",payBack:"ফেরত দিলাম",gotBack:"ফেরত পেলাম",paidOf:"{a}-এর মধ্যে {p} ফেরত দিয়েছি",gotOf:"{a}-এর মধ্যে {p} ফেরত পেয়েছি",due:"ফেরত {d}",overdue:"সময় পার · ফেরতের তারিখ ছিল {d}",settled:"শোধ হয়েছে",
+homeLoan:"ধার: আমাকে দিতে হবে {o} · আমি পাবো {r}",tooMuch:"এই ধারে আর মাত্র {x} বাকি।",left:"বাকি"}
+};
+
+var CATS=[
+["food","Food","খাবার","#f59e0b"],["transport","Transport","যাতায়াত","#3b82f6"],
+["shopping","Shopping","কেনাকাটা","#ec4899"],["bills","Bills","বিল","#8b5cf6"],
+["mobile","Mobile & Internet","মোবাইল ও ইন্টারনেট","#06b6d4"],["health","Health","স্বাস্থ্য","#ef4444"],
+["education","Education","শিক্ষা","#10b981"],["family","Family","পরিবার","#f97316"],
+["fun","Entertainment","বিনোদন","#84cc16"],["other","Other","অন্যান্য","#94a3b8"]];
+var LTYPE=[["take","I borrowed (took a loan)","আমি ধার নিয়েছি"],["give","I lent (gave a loan)","আমি ধার দিয়েছি"]];
+var FIX=[["rent","Home rent","বাসা ভাড়া"],["fare","Fare / transport","যাতায়াত ভাড়া"],["other","Other fixed cost","অন্যান্য স্থায়ী খরচ"]];
+
+/* ---------- Storage ---------- */
+function def(){return{exp:[],inc:[],fix:[],sav:[],need:[],loan:[],lang:"en",
+  theme:(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"}}
+var S;
+try{S=Object.assign(def(),JSON.parse(localStorage.getItem(KEY))||{})}catch(e){S=def()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){alert("Storage full")}render()}
+if(navigator.storage&&navigator.storage.persist){navigator.storage.persist()}
+
+/* ---------- Helpers ---------- */
+function t(k){return T[S.lang][k]||T.en[k]||k}
+var BN="০১২৩৪৫৬৭৮৯";
+function digits(s){return S.lang==="bn"?String(s).replace(/[0-9]/g,function(d){return BN[d]}):String(s)}
+function r2(n){return Math.round(n*100)/100}
+function fmt(n){n=r2(n);var neg=n<0;var s=Math.abs(n).toLocaleString("en-IN",{maximumFractionDigits:2});return (neg?"-":"")+"৳"+digits(s)}
+function num(n){return digits(n)}
+function sum(a){return r2(a.reduce(function(s,x){return s+x.a},0))}
+function pad(n){return (n<10?"0":"")+n}
+function dstr(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function today(){return dstr(new Date())}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function esc(s){return String(s||"").replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function cat(id){for(var i=0;i<CATS.length;i++)if(CATS[i][0]===id)return CATS[i];return CATS[CATS.length-1]}
+function catName(id){var c=cat(id);return S.lang==="bn"?c[2]:c[1]}
+function fixName(id){for(var i=0;i<FIX.length;i++)if(FIX[i][0]===id)return S.lang==="bn"?FIX[i][2]:FIX[i][1];return id}
+function niceDate(ds){
+  if(ds===today())return t("today");
+  var y=new Date();y.setDate(y.getDate()-1);if(ds===dstr(y))return t("yesterday");
+  var p=ds.split("-");var d=new Date(+p[0],+p[1]-1,+p[2]);
+  return d.toLocaleDateString(S.lang==="bn"?"bn-BD":"en-GB",{day:"numeric",month:"short",year:"numeric"});
+}
+function byDateDesc(a,b){return a.d<b.d?1:a.d>b.d?-1:(a.id<b.id?1:-1)}
+function readAmt(id){var v=parseFloat(String($(id).value).replace(",","."));return isFinite(v)&&v>0?r2(v):0}
+
+/* ---------- Totals ---------- */
+function paid(x){return sum(x.pay||[])}
+function remain(x){return r2(x.a-paid(x))}
+function loanTotals(){
+  var o={cash:0,owe:0,owed:0};
+  S.loan.forEach(function(x){var p=paid(x),r=Math.max(0,x.a-p);
+    if(x.t==="take"){o.cash+=x.a-p;o.owe+=r}else{o.cash-=x.a-p;o.owed+=r}});
+  o.cash=r2(o.cash);o.owe=r2(o.owe);o.owed=r2(o.owed);return o;
+}
+function totals(){
+  var inc=sum(S.inc),fix=sum(S.fix),exp=sum(S.exp),sav=sum(S.sav),L=loanTotals();
+  return{inc:inc,fix:fix,exp:exp,sav:sav,owe:L.owe,owed:L.owed,left:r2(inc-fix-exp-sav+L.cash)};
+}
+
+/* ---------- Rendering ---------- */
+function li(x,kind,title,sub,color){
+  return '<li>'+(color?'<span class="dot" style="background:'+color+'"></span>':'')+
+  '<div class="li-main"><b>'+esc(title)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</div>'+
+  '<span class="amt">'+fmt(x.a)+'</span><button class="del" data-k="'+kind+'" data-id="'+x.id+'" aria-label="Delete">×</button></li>';
+}
+function simpleList(el,arr,kind,titleFn){
+  if(!arr.length){$(el).innerHTML='<li class="muted">'+t("noData")+'</li>';return}
+  $(el).innerHTML=arr.slice().sort(byDateDesc).map(function(x){
+    return li(x,kind,titleFn(x),niceDate(x.d)+(x.n?" · "+x.n:""));
+  }).join("");
+}
+function fillSelect(el,list,bn){
+  var sel=$(el),v=sel.value;
+  sel.innerHTML=list.map(function(c){return'<option value="'+c[0]+'">'+(bn?c[2]:c[1])+'</option>'}).join("");
+  if(v)sel.value=v;
+}
+
+function renderExpenses(){
+  var arr=S.exp.slice().sort(byDateDesc),MAX=60,h="",cur="";
+  if(!arr.length){$("expList").innerHTML='<li class="muted">'+t("noData")+'</li>';return}
+  var dayTot={};S.exp.forEach(function(x){dayTot[x.d]=(dayTot[x.d]||0)+x.a});
+  arr.slice(0,MAX).forEach(function(x){
+    if(x.d!==cur){cur=x.d;h+='<div class="day"><span>'+niceDate(x.d)+'</span><span>'+fmt(dayTot[x.d])+'</span></div>'}
+    h+=li(x,"exp",catName(x.c),x.n,cat(x.c)[3]);
+  });
+  if(arr.length>MAX)h+='<p class="muted" style="padding-top:8px">'+t("latest").replace("{n}",num(MAX))+'</p>';
+  $("expList").innerHTML=h;
+}
+
+function monthLabel(m){var p=m.split("-");return new Date(+p[0],+p[1]-1,1).toLocaleDateString(S.lang==="bn"?"bn-BD":"en-GB",{month:"long",year:"numeric"})}
+function renderMonths(){
+  var M={};function g(m){return M[m]||(M[m]={inc:0,fix:0,exp:0,sav:0})}
+  S.inc.forEach(function(x){g(x.d.slice(0,7)).inc+=x.a});S.fix.forEach(function(x){g(x.d.slice(0,7)).fix+=x.a});
+  S.exp.forEach(function(x){g(x.d.slice(0,7)).exp+=x.a});S.sav.forEach(function(x){g(x.d.slice(0,7)).sav+=x.a});
+  var cur=today().slice(0,7),c=g(cur),ml=r2(c.inc-c.fix-c.exp-c.sav);
+  $("mName").textContent=monthLabel(cur);
+  $("mInc").textContent=fmt(c.inc);$("mFix").textContent=fmt(c.fix);$("mExp").textContent=fmt(c.exp);$("mSav").textContent=fmt(c.sav);
+  $("mLeft").textContent=fmt(ml);$("mLeft").className=ml<0?"neg":"";
+  var past=Object.keys(M).filter(function(m){return m<cur}).sort().reverse().slice(0,12);
+  $("monList").innerHTML=past.length?past.map(function(m){var x=M[m];
+    return'<li><div class="li-main"><b>'+monthLabel(m)+'</b><small>'+t("hInc")+' '+fmt(x.inc)+' · '+t("fixedT")+' '+fmt(x.fix)+'</small></div><span class="amt" style="text-align:right">'+t("hSpent")+' '+fmt(x.exp)+'<br><span class="pos">'+t("hSaved")+' '+fmt(x.sav)+'</span></span></li>';
+  }).join(""):'<li class="muted">'+t("noHist")+'</li>';
+}
+
+function renderPie(){
+  var mon=today().slice(0,7),by={},tot=0;
+  S.exp.forEach(function(x){if(x.d.slice(0,7)===mon){by[x.c]=(by[x.c]||0)+x.a;tot+=x.a}});
+  if(tot<=0){$("pie").innerHTML='<p class="muted">'+t("noPie")+'</p>';return}
+  var rows=Object.keys(by).map(function(k){return[k,by[k]]}).sort(function(a,b){return b[1]-a[1]});
+  var R=15.9155,cum=0,svg='<svg viewBox="0 0 64 64" aria-hidden="true">';
+  rows.forEach(function(r){
+    var p=r[1]/tot*100;
+    svg+='<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="'+cat(r[0])[3]+'" stroke-width="31.9" stroke-dasharray="'+p+' '+(100-p)+'" stroke-dashoffset="'+(-cum)+'"/>';
+    cum+=p;
+  });
+  svg+='</svg>';
+  var leg='<ul class="legend">'+rows.map(function(r){
+    return'<li><span class="dot" style="background:'+cat(r[0])[3]+'"></span><div class="li-main"><b>'+esc(catName(r[0]))+'</b></div><span class="amt">'+fmt(r[1])+' <span class="muted">'+(r[1]/tot<0.01?'<'+num(1):num(Math.round(r[1]/tot*100)))+'%</span></span></li>';
+  }).join("")+'</ul>';
+  $("pie").innerHTML='<div class="pie">'+svg+leg+'</div>';
+}
+
+function renderNeeds(left){
+  var pend=r2(S.need.filter(function(x){return!x.b}).reduce(function(s,x){return s+x.a},0));
+  $("nTotal").textContent=fmt(pend);$("nLeft").textContent=fmt(left);
+  $("nLeft").className=left<0?"neg":"";
+  var pct=pend>0?Math.min(100,Math.max(0,left/pend*100)):100;
+  $("nBar").style.width=pct+"%";
+  var m=$("nMsg");
+  if(!S.need.length){m.textContent=t("nothingNeeded");m.className="muted"}
+  else if(left>=pend){m.textContent=t("afford");m.className="pos"}
+  else{m.textContent=t("short").replace("{x}",fmt(pend-Math.max(left,0)));m.className="neg"}
+  if(!S.need.length){$("needList").innerHTML='<li class="muted">'+t("noData")+'</li>';return}
+  var arr=S.need.slice().sort(function(a,b){return(a.b-b.b)||(a.id<b.id?1:-1)});
+  $("needList").innerHTML=arr.map(function(x){
+    return'<li class="'+(x.b?"done":"")+'"><input type="checkbox" class="chk" data-id="'+x.id+'"'+(x.b?" checked":"")+' aria-label="bought"><div class="li-main"><b>'+esc(x.name)+'</b></div><span class="amt">'+fmt(x.a)+'</span><button class="del" data-k="need" data-id="'+x.id+'" aria-label="Delete">×</button></li>';
+  }).join("");
+}
+
+function loanItem(x){
+  var pd=paid(x),rem=remain(x),closed=rem<=0,od=!closed&&x.due&&x.due<today(),take=x.t==="take";
+  var h='<li class="loan"><div class="lhead"><b>'+esc(x.p)+'</b><span class="amt '+(closed?'':(take?'neg':'pos'))+'">'+fmt(closed?x.a:rem)+'</span>'+
+    '<button class="del" data-k="loan" data-id="'+x.id+'" aria-label="Delete">×</button></div>'+
+    '<small class="muted">'+esc((closed?(take?t("iOwe"):t("owedMe"))+" · ":"")+niceDate(x.d)+(x.n?" · "+x.n:""))+'</small><div class="tags">';
+  if(closed)h+='<span class="tag">'+t("settled")+'</span>';
+  else{
+    if(pd>0)h+='<span class="tag">'+t(take?"paidOf":"gotOf").replace("{p}",fmt(pd)).replace("{a}",fmt(x.a))+'</span>';
+    if(x.due)h+='<span class="tag'+(od?' od':'')+'">'+t(od?"overdue":"due").replace("{d}",niceDate(x.due))+'</span>';
+  }
+  h+='</div>';
+  if(!closed&&pd>0)h+='<div class="bar"><i style="width:'+Math.min(100,pd/x.a*100)+'%"></i></div>';
+  if(!closed)h+='<form class="payF" data-id="'+x.id+'" autocomplete="off"><input type="number" inputmode="decimal" step="any" min="0" placeholder="'+fmt(rem)+' '+t("left")+'"><button class="pbtn">'+t(take?"payBack":"gotBack")+'</button></form><div class="err"></div>';
+  if((x.pay||[]).length)h+='<div class="phist">'+x.pay.slice().sort(byDateDesc).map(function(p){
+    return'<div><span>'+niceDate(p.d)+' · '+t(take?"payBack":"gotBack")+'</span><span><b>'+fmt(p.a)+'</b><button class="del" data-k="pay" data-loan="'+x.id+'" data-id="'+p.id+'" aria-label="Delete">×</button></span></div>';
+  }).join("")+'</div>';
+  return h+'</li>';
+}
+function renderLoans(tt){
+  $("lOwe").textContent=fmt(tt.owe);$("lOwed").textContent=fmt(tt.owed);
+  var open=function(k){return S.loan.filter(function(x){return x.t===k&&remain(x)>0}).sort(function(a,b){return(a.due||"9")<(b.due||"9")?-1:(a.due||"9")>(b.due||"9")?1:byDateDesc(a,b)})};
+  var none='<li class="muted">'+t("noData")+'</li>';
+  var tk=open("take"),gv=open("give"),cl=S.loan.filter(function(x){return remain(x)<=0}).sort(byDateDesc);
+  $("takeList").innerHTML=tk.length?tk.map(loanItem).join(""):none;
+  $("giveList").innerHTML=gv.length?gv.map(loanItem).join(""):none;
+  $("closedList").innerHTML=cl.length?cl.map(loanItem).join(""):none;
+  var hl=$("hLoan");
+  if(tt.owe>0||tt.owed>0){hl.style.display="";hl.textContent=t("homeLoan").replace("{o}",fmt(tt.owe)).replace("{r}",fmt(tt.owed))}
+  else hl.style.display="none";
+}
+
+/* ---------- AI money tracker (on-device rules) ---------- */
+var AI={
+en:{empty:"Add a few expenses and I'll start showing where your money goes.",
+top:function(c,a,p){return"Your biggest spending this month is "+c+": "+a+" ("+p+"% of all spending)."},
+heavy:function(c,p){return c+" alone takes "+p+"% of your spending. Cutting it a little would make the biggest difference."},
+over:function(x){return"Overspending: this month your expenses and fixed costs are "+x+" more than your income."},
+near:function(p){return"You've already used "+p+"% of this month's income."},
+neg:function(x){return"Your balance is negative ("+x+"). You've spent more than the income you added."},
+pace:function(a,d,r,s){return"You spend about "+a+" a day. At this pace your money lasts about "+d+" days, but "+r+" days are left this month. Try to keep it under "+s+" a day."},
+ok:function(a,s){return"You spend about "+a+" a day. You can spend up to "+s+" a day for the rest of the month and still be fine."},
+todayHigh:function(x,a){return"Today's spending ("+x+") is well above your usual daily spending ("+a+")."},
+up:function(p){return"You've spent "+p+"% more than the same days last month."},
+down:function(p){return"Good: you've spent "+p+"% less than the same days last month."},
+small:function(n,x,l){return n+" small expenses under "+l+" added up to "+x+" this month. Small spends add up."},
+savLow:function(p){return"You've saved "+p+"% of this month's income. Try to save at least 10–20%."},
+savGood:function(p){return"Great: you've saved "+p+"% of this month's income."},
+needShort:function(x){return"Your needs list costs "+x+" more than the money you have left."},
+needOk:"You have enough money left to buy everything on your needs list.",
+biggest:function(a,c,d){return"Biggest single expense this month: "+a+" on "+c+" ("+d+")."},
+owe:function(x){return"You still have to pay back "+x+" in loans."},
+owedMe:function(x){return"Others still owe you "+x+"."},
+odTake:function(p,x,d){return"Overdue: you were supposed to pay "+p+" back "+x+" by "+d+"."},
+odGive:function(p,x,d){return"Overdue: "+p+" was supposed to return "+x+" to you by "+d+"."},
+ownMoney:function(x){return"Your \"Money left\" includes borrowed money. After paying back all your loans you would be at "+x+"."}},
+bn:{empty:"কয়েকটি খরচ যোগ করুন, তারপর আপনার টাকা কোথায় যাচ্ছে তা দেখাব।",
+top:function(c,a,p){return"এই মাসে সবচেয়ে বেশি খরচ "+c+"-এ: "+a+" (মোট খরচের "+p+"%)।"},
+heavy:function(c,p){return"শুধু "+c+"-এই "+p+"% খরচ হচ্ছে। এখানে একটু কমালে সবচেয়ে বেশি লাভ হবে।"},
+over:function(x){return"অতিরিক্ত খরচ: এই মাসে খরচ ও স্থায়ী খরচ মিলে আয়ের চেয়ে "+x+" বেশি।"},
+near:function(p){return"এই মাসের আয়ের "+p+"% ইতিমধ্যে খরচ হয়ে গেছে।"},
+neg:function(x){return"আপনার ব্যালান্স মাইনাসে ("+x+")। যোগ করা আয়ের চেয়ে বেশি খরচ হয়েছে।"},
+pace:function(a,d,r,s){return"দিনে গড়ে "+a+" খরচ করছেন। এভাবে চললে টাকা প্রায় "+d+" দিন চলবে, কিন্তু মাসের "+r+" দিন বাকি। দিনে "+s+"-এর মধ্যে রাখার চেষ্টা করুন।"},
+ok:function(a,s){return"দিনে গড়ে "+a+" খরচ করছেন। মাসের বাকি দিনগুলোতে দিনে "+s+" পর্যন্ত খরচ করলেও সমস্যা নেই।"},
+todayHigh:function(x,a){return"আজকের খরচ ("+x+") আপনার সাধারণ দৈনিক খরচের ("+a+") চেয়ে অনেক বেশি।"},
+up:function(p){return"গত মাসের একই সময়ের চেয়ে "+p+"% বেশি খরচ করেছেন।"},
+down:function(p){return"ভালো: গত মাসের একই সময়ের চেয়ে "+p+"% কম খরচ করেছেন।"},
+small:function(n,x,l){return"এই মাসে "+l+"-এর কম "+n+"টি ছোট খরচ মিলে "+x+" হয়েছে। ছোট খরচও জমে বড় হয়।"},
+savLow:function(p){return"এই মাসের আয়ের "+p+"% সঞ্চয় করেছেন। অন্তত ১০–২০% সঞ্চয়ের চেষ্টা করুন।"},
+savGood:function(p){return"দারুণ: এই মাসের আয়ের "+p+"% সঞ্চয় করেছেন।"},
+needShort:function(x){return"প্রয়োজনের তালিকার জন্য বাকি টাকার চেয়ে আরও "+x+" লাগবে।"},
+needOk:"প্রয়োজনের তালিকার সবকিছু কেনার মতো টাকা আপনার আছে।",
+biggest:function(a,c,d){return"এই মাসের সবচেয়ে বড় একক খরচ: "+c+"-এ "+a+" ("+d+")।"},
+owe:function(x){return"এখনো "+x+" ধার ফেরত দিতে হবে।"},
+owedMe:function(x){return"অন্যদের কাছে এখনো "+x+" পাবেন।"},
+odTake:function(p,x,d){return"সময় পার: "+d+"-এর মধ্যে "+p+"-কে "+x+" ফেরত দেওয়ার কথা ছিল।"},
+odGive:function(p,x,d){return"সময় পার: "+d+"-এর মধ্যে "+p+"-এর "+x+" ফেরত দেওয়ার কথা ছিল।"},
+ownMoney:function(x){return"\"বাকি টাকা\"-র মধ্যে ধারের টাকাও আছে। সব ধার শোধ করলে আপনার হাতে থাকবে "+x+"।"}}
+};
+
+function insights(tt){
+  var L=AI[S.lang],out=[],now=new Date(),td=today(),mon=td.slice(0,7);
+  var dom=now.getDate(),dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  var inMon=function(x){return x.d.slice(0,7)===mon};
+  var mExp=S.exp.filter(inMon),mSpent=sum(mExp),mInc=sum(S.inc.filter(inMon)),mFix=sum(S.fix.filter(inMon)),mSav=sum(S.sav.filter(inMon));
+  var pend=S.need.filter(function(x){return!x.b}).reduce(function(s,x){return s+x.a},0);
+
+  if(tt.left<0)out.push(["warn",L.neg(fmt(tt.left))]);
+  if(mInc>0&&mSpent+mFix>mInc)out.push(["warn",L.over(fmt(mSpent+mFix-mInc))]);
+  else if(mInc>0&&(mSpent+mFix)/mInc>=0.8)out.push(["warn",L.near(num(Math.round((mSpent+mFix)/mInc*100)))]);
+
+  if(!mExp.length){
+    if(!S.exp.length&&!out.length)out.push(["info",L.empty]);
+  }else{
+    var by={};mExp.forEach(function(x){by[x.c]=(by[x.c]||0)+x.a});
+    var topK=Object.keys(by).sort(function(a,b){return by[b]-by[a]})[0],topP=Math.round(by[topK]/mSpent*100);
+    out.push(["info",L.top(catName(topK),fmt(by[topK]),num(topP))]);
+    if(topP>=40&&Object.keys(by).length>1)out.push(["warn",L.heavy(catName(topK),num(topP))]);
+
+    var avg=mSpent/dom,rem=dim-dom+1;
+    if(tt.left>0&&avg>0){
+      var lasts=Math.floor(tt.left/avg);
+      if(lasts<rem)out.push(["warn",L.pace(fmt(avg),num(lasts),num(rem),fmt(tt.left/rem))]);
+      else out.push(["good",L.ok(fmt(avg),fmt(tt.left/rem))]);
+    }
+    var todaySp=sum(mExp.filter(function(x){return x.d===td}));
+    if(dom>3){var prevAvg=(mSpent-todaySp)/(dom-1);if(prevAvg>0&&todaySp>prevAvg*1.5)out.push(["warn",L.todayHigh(fmt(todaySp),fmt(prevAvg))])}
+
+    var lm=new Date(now.getFullYear(),now.getMonth()-1,1),lmStr=dstr(lm).slice(0,7);
+    var lastSame=sum(S.exp.filter(function(x){return x.d.slice(0,7)===lmStr&&+x.d.slice(8)<=dom}));
+    if(lastSame>0){var ch=Math.round((mSpent-lastSame)/lastSame*100);
+      if(ch>=10)out.push(["warn",L.up(num(ch))]);else if(ch<=-10)out.push(["good",L.down(num(-ch))])}
+
+    var sm=mExp.filter(function(x){return x.a<100});
+    var smT=sum(sm);if(sm.length>=5&&smT>=mSpent*0.1)out.push(["info",L.small(num(sm.length),fmt(smT),fmt(100))]);
+
+    var big=mExp.reduce(function(m,x){return x.a>m.a?x:m},mExp[0]);
+    if(mExp.length>2)out.push(["info",L.biggest(fmt(big.a),catName(big.c),niceDate(big.d))]);
+  }
+  if(mInc>0){var sp=Math.round(mSav/mInc*100);
+    if(sp>=20)out.push(["good",L.savGood(num(sp))]);else out.push(["info",L.savLow(num(sp))])}
+  if(pend>0){if(pend>tt.left)out.push(["warn",L.needShort(fmt(pend-Math.max(tt.left,0)))]);else out.push(["good",L.needOk])}
+
+  var td2=today();
+  S.loan.forEach(function(x){var r=remain(x);if(r>0&&x.due&&x.due<td2)out.push(["warn",(x.t==="take"?L.odTake:L.odGive)(x.p,fmt(r),niceDate(x.due))])});
+  if(tt.owe>0){out.push(["info",L.owe(fmt(tt.owe))]);if(tt.left-tt.owe<0)out.push(["warn",L.ownMoney(fmt(tt.left-tt.owe))])}
+  if(tt.owed>0)out.push(["info",L.owedMe(fmt(tt.owed))]);
+
+  /* warnings first */
+  var order={warn:0,info:1,good:2};
+  out.sort(function(a,b){return order[a[0]]-order[b[0]]});
+  $("insights").innerHTML=out.map(function(o){return'<div class="ins '+o[0]+'">'+esc(o[1])+'</div>'}).join("");
+}
+
+function render(){
+  var de=document.documentElement;
+  de.lang=S.lang;de.setAttribute("data-theme",S.theme);
+  document.querySelector('meta[name=theme-color]').setAttribute("content",S.theme==="dark"?"#0d1312":"#0f766e");
+  var els=document.querySelectorAll("[data-i]");
+  for(var i=0;i<els.length;i++)els[i].textContent=t(els[i].getAttribute("data-i"));
+  document.title=t("appName");
+  $("langBtn").textContent=t("langBtn");
+  $("themeBtn").textContent=S.theme==="dark"?t("day"):t("night");
+  fillSelect("eCat",CATS,S.lang==="bn");fillSelect("xType",FIX,S.lang==="bn");fillSelect("lType",LTYPE,S.lang==="bn");
+
+  var tt=totals();
+  $("left").textContent=fmt(tt.left);$("left").className="big"+(tt.left<0?" neg":"");
+  $("sInc").textContent=fmt(tt.inc);$("sFix").textContent=fmt(tt.fix);
+  $("sExp").textContent=fmt(tt.exp);$("sSav").textContent=fmt(tt.sav);
+  $("sToday").textContent=fmt(sum(S.exp.filter(function(x){return x.d===today()})));
+  $("tInc").textContent=fmt(tt.inc);$("tFix").textContent=fmt(tt.fix);
+  $("tLeft").textContent=fmt(tt.left);$("tLeft").className=tt.left<0?"neg":"";
+  $("savTotal").textContent=fmt(tt.sav);
+
+  renderMonths();renderExpenses();renderPie();
+  simpleList("incList",S.inc,"inc",function(){return t("incomeT")});
+  simpleList("fixList",S.fix,"fix",function(x){return fixName(x.c)});
+  simpleList("savList",S.sav,"sav",function(){return t("savedT")});
+  renderNeeds(tt.left);
+  renderLoans(tt);
+  insights(tt);
+}
+
+/* ---------- Forms ---------- */
+function bind(formId,amtId,errId,build,listKey,reset){
+  $(formId).addEventListener("submit",function(e){
+    e.preventDefault();
+    var a=readAmt(amtId);
+    if(!a){$(errId).textContent=t("badAmt");return}
+    $(errId).textContent="";
+    var item=build(a);if(!item)return;
+    S[listKey].push(item);
+    reset.forEach(function(id){$(id).value=""});
+    document.activeElement&&document.activeElement.blur();
+    save();
+  });
+}
+bind("fExp","eAmt","eErr",function(a){return{id:uid(),a:a,c:$("eCat").value,n:$("eNote").value.trim(),d:$("eDate").value||today()}},"exp",["eAmt","eNote"]);
+bind("fInc","iAmt","iErr",function(a){return{id:uid(),a:a,n:$("iNote").value.trim(),d:$("iDate").value||today()}},"inc",["iAmt","iNote"]);
+bind("fFix","xAmt","xErr",function(a){return{id:uid(),a:a,c:$("xType").value,n:$("xNote").value.trim(),d:$("xDate").value||today()}},"fix",["xAmt","xNote"]);
+bind("fSav","sAmt","sErr",function(a){return{id:uid(),a:a,n:$("sNote").value.trim(),d:$("sDate").value||today()}},"sav",["sAmt","sNote"]);
+bind("fNeed","nPrice","nErr",function(a){
+  var nm=$("nName").value.trim();if(!nm){$("nErr").textContent=t("badItem");return null}
+  return{id:uid(),a:a,name:nm,b:0};
+},"need",["nName","nPrice"]);
+
+bind("fLoan","lAmt","lErr",function(a){
+  var nm=$("lName").value.trim();if(!nm){$("lErr").textContent=t("badName");return null}
+  return{id:uid(),t:$("lType").value,p:nm,a:a,d:$("lDate").value||today(),due:$("lDue").value||"",n:$("lNote").value.trim(),pay:[]};
+},"loan",["lName","lAmt","lNote","lDue"]);
+
+/* repayments (pay back / got back) */
+document.addEventListener("submit",function(e){
+  var f=e.target;if(!f.classList||!f.classList.contains("payF"))return;
+  e.preventDefault();
+  var id=f.getAttribute("data-id"),inp=f.querySelector("input"),er=f.nextElementSibling;
+  var a=parseFloat(String(inp.value).replace(",","."));a=isFinite(a)&&a>0?r2(a):0;
+  var x=S.loan.filter(function(l){return l.id===id})[0];if(!x)return;
+  if(!a){er.textContent=t("badAmt");return}
+  var rem=remain(x);if(a>rem){er.textContent=t("tooMuch").replace("{x}",fmt(rem));return}
+  (x.pay=x.pay||[]).push({id:uid(),a:a,d:today()});
+  document.activeElement&&document.activeElement.blur();
+  save();
+});
+
+/* delete + bought (one listener for everything) */
+document.addEventListener("click",function(e){
+  var b=e.target.closest(".del");
+  if(b){if(!confirm(t("delQ")))return;var k=b.getAttribute("data-k"),id=b.getAttribute("data-id");
+    if(k==="pay"){var lid=b.getAttribute("data-loan");S.loan.forEach(function(l){if(l.id===lid)l.pay=(l.pay||[]).filter(function(p){return p.id!==id})});save();return}
+    S[k]=S[k].filter(function(x){return x.id!==id});save();return}
+  var n=e.target.closest("nav button");
+  if(n){var tab=n.getAttribute("data-t");
+    var secs=document.querySelectorAll("section");for(var i=0;i<secs.length;i++)secs[i].classList.toggle("on",secs[i].id===tab);
+    var bs=document.querySelectorAll("nav button");for(var j=0;j<bs.length;j++)bs[j].classList.toggle("on",bs[j]===n);
+    window.scrollTo(0,0)}
+});
+document.addEventListener("change",function(e){
+  if(e.target.classList.contains("chk")){var id=e.target.getAttribute("data-id");
+    S.need.forEach(function(x){if(x.id===id)x.b=e.target.checked?1:0});save()}
+});
+$("langBtn").onclick=function(){S.lang=S.lang==="en"?"bn":"en";save()};
+$("themeBtn").onclick=function(){S.theme=S.theme==="dark"?"light":"dark";save()};
+
+/* default dates = today (also refreshed when the app is reopened on a new day) */
+var lastDay="";
+function setDates(){var d=today();if(d===lastDay)return;lastDay=d;["eDate","iDate","xDate","sDate","lDate"].forEach(function(id){$(id).value=d});render()}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)setDates()});
+setDates();
+setInterval(setDates,60000);
+
+/* auto update: checks for a new version whenever the phone is online (Wi-Fi or data) */
+if("serviceWorker" in navigator&&location.protocol!=="file:"){
+  var hadSW=!!navigator.serviceWorker.controller,reloaded=false;
+  navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(reg){
+    function check(){if(navigator.onLine)reg.update().catch(function(){})}
+    window.addEventListener("online",check);
+    document.addEventListener("visibilitychange",function(){if(!document.hidden)check()});
+    setInterval(check,30*60000);
+  });
+  navigator.serviceWorker.addEventListener("controllerchange",function(){if(hadSW&&!reloaded){reloaded=true;location.reload()}});
+}
+})();
+</script>
+</body>
+</html>
